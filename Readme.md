@@ -39,13 +39,13 @@
 ```
 DEBUG=False
 SECRET_KEY=Colocar a secrety key aqui
+ALLOWED_HOSTS=[127.0.0.1, localhost]
 EMAIL_PORT = porta do seu provedor de email
 EMAIL_HOST = host do seu provedor de email
 EMAIL_HOST_USER=usuario do seu provedor de email
 EMAIL_HOST_PASSWORD=senha do seu provedor de email
 FRONTEND_URL = Endereço da sua aplicação
 APP_SCHEME = Endereço do seu aplicativo mobile
-
 ```
 
 - Crie um virtual enviroment, ative o mesmo e utilize o seguinte comando para instalar as dependência do projeto. `pip install -r requirements.txt`
@@ -178,6 +178,16 @@ CORS_ORIGIN_WHITELIST = [
 <img src="imagens/dashboard/ExpensesComingSumary.png" />
 <br>
 
+## Custom Exception Handling.
+- Em `core/settings.py` na chave `EXCEPTION_HANDLER` tem o caminho para o arquivo com as customizações das execptions de: ValidationError, Http404, PermissionDenied e NotAuthenticated.
+- Muito utilizado para se proteger de ataques contra a aplicação.
+```python
+REST_FRAMEWORK = {
+      'EXCEPTION_HANDLER': 'utils.exceptionhandler.custom_exception_handler',
+}
+```
+- Exemplo: Normalmente ao tentar acessar um endpoint com um usuário não logado iria receber `"detail": "Authentication credentials were not provided."`, porém agora utilizando o handle você irá receber `  "error": "Please login to proceed", "status_code": 401`, porém caso ainda queira alterar o status code, na linha 16 tem um exemplo.
+- Em `core.urls`, tem os handlers de errors 404 e 500, ambos só funcionam se DEBUG estiver como False.
 ## Unit Testing Authentication
 - Utilização do [Facker](https://faker.readthedocs.io/en/master/), para que seja gerado informações aleatórias facilitando a escrita dos testes.
 - test_setup -> TestSetUp: Contém a base dos dados e as urls que tem testes criados
