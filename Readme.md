@@ -198,7 +198,7 @@ CORS_ORIGIN_WHITELIST = [
 <br>
   
 - Lançamentos futuros /dashboard/expenses-coming-sumary/{days} onde days é o número de dias.
-<img src="imagens/authentication/UserBankAccount.png" />
+<img src="imagens/authentication/ExpensesComingSumary.png" />
 <br>
 
 
@@ -209,7 +209,7 @@ CORS_ORIGIN_WHITELIST = [
 
 ## UserBankAccount
 - Ao criar uma conta é automaticamente gerada um número de conta no settings.py é possível alterar o número de início `core/settings.py` váriavel `ACCOUNT_NUMBER_START_FROM`.
-<img src="imagens/dashboard/ExpensesComingSumary.png" />
+<img src="imagens/dashboard/UserBankAccount.png" />
 <br>
 - Em `authentication/serializers.py` classe `RegisterSerializer` method `create` estou a somar o id do usuário com o número de início user.id+settings.ACCOUNT_NUMBER_START_FROM`  
 
