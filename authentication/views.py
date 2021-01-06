@@ -2,10 +2,9 @@ from django.conf import settings
 from django.urls import reverse
 from django.http import HttpResponsePermanentRedirect
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError
+from django.utils.encoding import smart_str, smart_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.sites.shortcuts import get_current_site
-from django.shortcuts import redirect
 from rest_framework import generics, status, views
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -19,17 +18,26 @@ from .serializers import (
                             LoginSerializer,
                             ResetPasswordEmailSerializer,
                             SetNewPasswordSerializer,
-                            LogoutSerializer
+                            LogoutSerializer,
+                            UserAddressUpdateSerializer
                         )
 from .models import User
 from .utils import Util
 from .renderers import UserRender
+from .permissions import IsCurrentUser
 import jwt
 
 
 class CustomRedirect(HttpResponsePermanentRedirect):
 
     allowed_schemes = [config('APP_SCHEME'), 'http', 'https']
+
+
+class UserAddressUpdateAPIView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+
+    serializer_class = UserAddressUpdateSerializer
+    permission_classes = (permissions.IsAuthenticated, IsCurrentUser)
 
 
 class RegisterView(generics.GenericAPIView):
@@ -171,6 +179,7 @@ class LogoutAPIView(generics.GenericAPIView):
 
 class AuthUserAPIView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
+    renderer_classes = (UserRender, )
 
     def get(self, request):
         user = User.objects.get(pk=request.user.pk)

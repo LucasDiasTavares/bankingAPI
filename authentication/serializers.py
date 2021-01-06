@@ -5,18 +5,32 @@ from django.contrib import auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from .models import User
+from django.conf import settings
+from .models import User, UserAddress, UserBankAccount
+
+
+class UserAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAddress
+        fields = ['street_address', 'city', 'postal_code', 'country']
+
+
+class UserBankAccountRegister(serializers.ModelSerializer):
+    class Meta:
+        model = UserBankAccount
+        fields = ['account_type', 'gender', 'birth_date']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=68, min_length=6, write_only=True)
+    userAddress = UserAddressSerializer(write_only=True)
+    userBankAccount = UserBankAccountRegister(write_only=True)
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'username', 'password', 'userAddress', 'userBankAccount']
 
     def validate(self, attrs):
-        email = attrs.get('email', '')
         username = attrs.get('username', '')
 
         if not username.isalnum():
@@ -25,7 +39,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        user_Address = validated_data.pop('userAddress')
+        user_Bank_Account = validated_data.pop('userBankAccount')
+        user = User.objects.create_user(**validated_data)
+        account_number = user.id+settings.ACCOUNT_NUMBER_START_FROM
+
+        UserAddress.objects.create(user=user, **user_Address)
+        UserBankAccount.objects.create(user=user, **user_Bank_Account, account_no=account_number)
+
+        user.save()
+
+        return user
 
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
@@ -131,4 +155,34 @@ class LogoutSerializer(serializers.Serializer):
             self.fail('bad_token')
 
 
+class UserAddressForUpdateSerializer(serializers.ModelSerializer):
+    street_address = serializers.CharField(required=False)
+    city = serializers.CharField(required=False)
+    postal_code = serializers.IntegerField(required=False)
+    country = serializers.CharField(required=False)
 
+    class Meta:
+        model = UserAddress
+        fields = ['street_address', 'city', 'postal_code', 'country']
+
+
+class UserAddressUpdateSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=False)
+    userAddress = UserAddressForUpdateSerializer(write_only=True, partial=True, required=False)
+
+    class Meta:
+        model = User
+        fields = ['username', 'userAddress']
+
+    def update(self, instance, validated_data):
+        nested_serializer = self.fields['userAddress']
+        nested_instance = instance.address
+        # remove nested object
+        nested_data = validated_data.pop('userAddress')
+        # update the object without nested
+        instance.username = validated_data.get('username', instance.username)
+        # update the nested object
+        nested_serializer.update(nested_instance, nested_data)
+
+        instance.save()
+        return instance

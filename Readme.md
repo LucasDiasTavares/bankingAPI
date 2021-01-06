@@ -11,17 +11,14 @@
 
 ## Coisas a fazer usuário
 
-- Gerar um número único de conta.
-- Suporte ao tipo de conta (Corrente, Poupança, etc)
-- Salvar e editar os dados pessoais.
 - Adicionar e configurar Nginx.
 - Adicionar e configurar Redis.
-- Adicionar e configurar Docker. 
+- Adicionar e configurar Docker.
 - Depositar e retirar dinheiro.
 - Ver as alterações do saldo a cada transação.
 - Relatório de transação com um filtro de intervalo de datas.
 - Adicionar restrição de máximo e mínimo nas transferências e pagamentos.
-- Integração com API que traz as contas de água, luz, telefone e etc.
+- Integração com API que traz as contas de água, luz, telefone, etc.
 - Integração com o FPDS.
 - Pagamento/Transferência com 2 passos de autenticação.
 
@@ -153,6 +150,32 @@ CORS_ORIGIN_WHITELIST = [
 <img src="imagens/authentication/BlackListToken.png" /> <br>
 - Pode ser utilizado o commando `python manage.py flushexpiredtokens` para remover todos os items expirados da blacklist
 
+
+# Atualizar as informações de um usuário
+- No endpoint `/auth/user-address-update/{id}/` é possivel atualizar as seguintes informações:
+```json
+{
+  "username": "string",
+  "userAddress": {
+    "street_address": "string",
+    "city": "string",
+    "postal_code": 0,
+    "country": "string"
+  }
+}
+```
+- Caso tente alterar os dados de um usuário diferente do atual logado, irá receber o seguinte erro:
+  - Possivel alterar essa permissão em: authentication/permissions.py
+```json
+{
+  "errors": [
+    "Permission denied"
+  ],
+  "status_code": 403
+}
+```
+
+
 ## Redirecionamento (webhook) para frontend e/ou mobile apps
 - Em `Authentication/views.py` você irá encontrar uma classe chamada de CustomRedirect onde está o scheme da app
 - No endpoint /auth/request-reset-password/ existe um campo para redirecionar chamado redirect_url
@@ -175,11 +198,24 @@ CORS_ORIGIN_WHITELIST = [
 <br>
   
 - Lançamentos futuros /dashboard/expenses-coming-sumary/{days} onde days é o número de dias.
-<img src="imagens/dashboard/ExpensesComingSumary.png" />
+<img src="imagens/authentication/UserBankAccount.png" />
 <br>
 
+
+## BankAccountType
+- Dentro do painel de administração do django em `/admin/authentication/bankaccounttype/add/` podem ser adicionados novos tipos de contas.
+- Cada conta é obrigatório ter um nome e um valor máximo de saque.
+
+
+## UserBankAccount
+- Ao criar uma conta é automaticamente gerada um número de conta no settings.py é possível alterar o número de início `core/settings.py` váriavel `ACCOUNT_NUMBER_START_FROM`.
+<img src="imagens/dashboard/ExpensesComingSumary.png" />
+<br>
+- Em `authentication/serializers.py` classe `RegisterSerializer` method `create` estou a somar o id do usuário com o número de início user.id+settings.ACCOUNT_NUMBER_START_FROM`  
+
+
 ## Custom Exception Handling.
-- Em `core/settings.py` na chave `EXCEPTION_HANDLER` tem o caminho para o arquivo com as customizações das execptions de: ValidationError, Http404, PermissionDenied e NotAuthenticated.
+- Em `core/settings.py` na chave `EXCEPTION_HANDLER` tem o caminho para o arquivo com as customizações das exceptions de: ValidationError, Http404, PermissionDenied e NotAuthenticated.
 - Muito utilizado para se proteger de ataques contra a aplicação.
 ```python
 REST_FRAMEWORK = {
@@ -188,6 +224,7 @@ REST_FRAMEWORK = {
 ```
 - Exemplo: Normalmente ao tentar acessar um endpoint com um usuário não logado iria receber `"detail": "Authentication credentials were not provided."`, porém agora utilizando o handle você irá receber `  "error": "Please login to proceed", "status_code": 401`, porém caso ainda queira alterar o status code, na linha 16 tem um exemplo.
 - Em `core.urls`, tem os handlers de errors 404 e 500, ambos só funcionam se DEBUG estiver como False.
+
 ## Unit Testing Authentication
 - Utilização do [Facker](https://faker.readthedocs.io/en/master/), para que seja gerado informações aleatórias facilitando a escrita dos testes.
 - test_setup -> TestSetUp: Contém a base dos dados e as urls que tem testes criados
