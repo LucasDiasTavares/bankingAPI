@@ -2,7 +2,6 @@ import os
 from datetime import timedelta
 from decouple import config, Csv
 
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = config('SECRET_KEY')
@@ -25,6 +24,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'drf_yasg',
     'authentication',
+    'transactions',
     'expenses',
     'incomes',
     'userdashboard',
@@ -79,18 +79,17 @@ DATABASES = {
 }
 
 REST_FRAMEWORK = {
-        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-        'PAGE_SIZE': 3,
-        'NON_FIELD_ERRORS_KEY': 'error',
-        'EXCEPTION_HANDLER': 'utils.exceptionhandler.custom_exception_handler',
-        'DEFAULT_AUTHENTICATION_CLASSES': (
-            'rest_framework_simplejwt.authentication.JWTAuthentication',
-        )
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+    'NON_FIELD_ERRORS_KEY': 'error',
+    'EXCEPTION_HANDLER': 'utils.exceptionhandler.custom_exception_handler',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
-
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=50),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=99),  # timedelta(minutes=50),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1)
 }
 
@@ -111,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 

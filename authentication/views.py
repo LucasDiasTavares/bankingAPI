@@ -19,7 +19,8 @@ from .serializers import (
                             ResetPasswordEmailSerializer,
                             SetNewPasswordSerializer,
                             LogoutSerializer,
-                            UserAddressUpdateSerializer
+                            UserAddressUpdateSerializer,
+                            UserDataSerializer,
                         )
 from .models import User
 from .utils import Util
@@ -177,12 +178,11 @@ class LogoutAPIView(generics.GenericAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class AuthUserAPIView(generics.GenericAPIView):
+class AuthUserAPIView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
     permission_classes = (permissions.IsAuthenticated, )
-    renderer_classes = (UserRender, )
 
-    def get(self, request):
-        user = User.objects.get(pk=request.user.pk)
-        serializer = RegisterSerializer(user)
-
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset.get(pk=request.user.pk)
+        serializer = UserDataSerializer(queryset)
         return Response(serializer.data)

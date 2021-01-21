@@ -12,13 +12,13 @@ from .models import User, UserAddress, UserBankAccount
 class UserAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAddress
-        fields = ['street_address', 'city', 'postal_code', 'country']
+        fields = ['id', 'street_address', 'city', 'postal_code', 'country']
 
 
 class UserBankAccountRegister(serializers.ModelSerializer):
     class Meta:
         model = UserBankAccount
-        fields = ['account_type', 'gender', 'birth_date']
+        fields = ['id', 'account_type', 'gender', 'birth_date']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -76,7 +76,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'username', 'tokens']
+        fields = ['id', 'email', 'password', 'username', 'tokens']
 
     def validate(self, attrs):
         email = attrs.get('email', '')
@@ -91,6 +91,7 @@ class LoginSerializer(serializers.ModelSerializer):
             raise AuthenticationFailed('Email is not verified!')
 
         return {
+            'id': user.id,
             'email': user.email,
             'username': user.username,
             'tokens': user.tokens
@@ -153,6 +154,21 @@ class LogoutSerializer(serializers.Serializer):
             RefreshToken(self.token).blacklist()
         except TokenError:
             self.fail('bad_token')
+
+
+class UserBankAccountData(serializers.ModelSerializer):
+    class Meta:
+        model = UserBankAccount
+        fields = ['id', 'account_type', 'balance', 'account_no', 'gender', 'birth_date']
+
+
+class UserDataSerializer(serializers.ModelSerializer):
+    address = UserAddressSerializer(read_only=True)
+    account = UserBankAccountData(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'username', 'address', 'account']
 
 
 class UserAddressForUpdateSerializer(serializers.ModelSerializer):
