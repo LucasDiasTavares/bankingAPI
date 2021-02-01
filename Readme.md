@@ -9,25 +9,6 @@
 - [Django Cors Headers](https://pypi.org/project/django-cors-headers/)
 - [Faker](https://faker.readthedocs.io/en/master/)
 
-## Coisas a fazer usuário
-
-- Adicionar e configurar Nginx.
-- Adicionar e configurar Redis.
-- Adicionar e configurar Docker.
-- Adicionar restrição de máximo e mínimo nas transferências.
-- Poder pagar contas.
-- Começar a desenvolver o agendamento de transferências, pagamento de contas, etc.
-- Integração com API que traz as contas de água, luz, telefone, etc.
-- Integração com o FPDS.
-- Pagamento/Transferência com 2 passos de autenticação.
-- Gravar dispositivo que entrar no sistema.
-
-## Coisas a fazer ADM da aplicação
-- Conseguir ver uma listagem de todas as transações.
-- Editar e alterar dados de qualquer usuário.
-- Ver o histórico de transações de um usuário expecifico.
-
-
 ## Entendendo a aplicação e algumas peculiaridades.
 
 - Crie um arquivo .env e nele deve conter algumas variáveis de sistema:
